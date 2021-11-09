@@ -21,6 +21,9 @@ def pae_encode(lst: List[bytes],
 
 def pae_encode_multiple(value_type_pairs,
                         size_t: PAENumberType = PAENumberType.ULLONG) -> bytes:
-    values, types = zip(*value_type_pairs)
+    if value_type_pairs:
+        values, types = zip(*value_type_pairs)
+    else:
+        values = types = ()
     lst_type = PAEHeterogeneousList(types, size_type=size_t)
     return marshal(values, lst_type)
