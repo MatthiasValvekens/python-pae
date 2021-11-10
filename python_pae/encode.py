@@ -1,4 +1,5 @@
 import os
+import struct
 from io import BytesIO
 from typing import IO, TypeVar
 
@@ -41,30 +42,38 @@ def marshal(value: T, pae_type: PAEType[T]) -> bytes:
     return out.getvalue()
 
 
+def _read_with_errh(pae_type, stream, length):
+    try:
+        value = pae_type.read(stream, length)
+    except PAEDecodeError:
+        raise
+    except (IOError, ValueError, struct.error) as e:
+        raise PAEDecodeError(
+            f"Failed to read value for PAE type {pae_type}"
+        ) from e
+    return value
+
+
 def read_prefixed_coro(pae_type: PAEType[T], stream: IO,
                        length_type: PAENumberType):
     if pae_type.constant_length is None:
         pref_length = length_type.constant_length
         try:
             length = length_type.unpack(stream.read(pref_length))
-        except (IOError, ValueError):
+        except (IOError, ValueError, struct.error) as e:
             raise PAEDecodeError(
                 f"Failed to read length prefix for value of type {pae_type}"
-            )
+            ) from e
         total_length = pref_length + length
     else:
         length = total_length = pae_type.constant_length
     yield total_length
 
-    try:
-        value = pae_type.read(stream, length)
-    except (IOError, ValueError):
-        raise PAEDecodeError(f"Failed to read value for PAE type {pae_type}")
-    yield value
+    yield _read_with_errh(pae_type, stream, length)
 
 
 def unmarshal(packed: bytes, pae_type: PAEType[T]) -> T:
-    return pae_type.read(BytesIO(packed), length=len(packed))
+    return _read_with_errh(pae_type, BytesIO(packed), length=len(packed))
 
 
 def read_pae_coro(stream: IO,
@@ -75,18 +84,20 @@ def read_pae_coro(stream: IO,
     next_pae_type: PAEType
     # noinspection PyTypeChecker
     next_pae_type = yield part_count
-    for _ in range(part_count):
+    for ix in range(part_count):
         part_coro = read_prefixed_coro(next_pae_type, stream, length_type)
         part_len: int = next(part_coro)
         bytes_read += part_len
-        if expected_length is not None and bytes_read > expected_length:
-            raise PAEDecodeError(
-                f"Expected a payload of length {expected_length}; next item "
-                f"too long: would need at least {bytes_read}"
-            )
+        if expected_length is not None:
+            if bytes_read > expected_length:
+                raise PAEDecodeError(
+                    f"Expected a payload of length {expected_length}; next item "
+                    f"too long: would need at least {bytes_read}"
+                )
+            elif ix == part_count - 1 and bytes_read != expected_length:
+                # before yielding the last item, check for trailing data
+                raise PAEDecodeError(
+                    f"Expected a payload of length {expected_length},"
+                    f"but read {bytes_read} bytes; trailing data."
+                )
         next_pae_type = yield next(part_coro)
-    if expected_length is not None and bytes_read != expected_length:
-        raise ValueError(
-            f"Expected a payload of length {expected_length},"
-            f"but read {bytes_read} bytes."
-        )

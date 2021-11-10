@@ -1,6 +1,6 @@
 from typing import List, TypeVar, IO
 
-from .abstract import PAEType, PAENumberType
+from .abstract import PAEType, PAENumberType, PAEDecodeError
 from .encode import write_prefixed, read_pae_coro
 
 
@@ -82,7 +82,7 @@ class PAEHeterogeneousList(PAEType[list]):
         )
         part_count = next(coro)
         if len(self.component_types) != part_count:
-            raise ValueError(
+            raise PAEDecodeError(
                 f"Wrong number of components, expected "
                 f"{len(self.component_types)} but got {part_count}."
             )
