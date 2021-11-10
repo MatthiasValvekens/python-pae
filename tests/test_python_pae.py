@@ -1,3 +1,9 @@
+"""
+PAE encoding/decoding tests.
+
+.. (c) 2021 Matthias Valvekens
+"""
+
 import struct
 from io import BytesIO
 from typing import IO

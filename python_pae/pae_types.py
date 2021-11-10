@@ -1,3 +1,9 @@
+"""
+This module defines the serialisation logic for a number of basic types.
+
+.. (c) 2021 Matthias Valvekens
+"""
+
 from typing import List, TypeVar, IO
 
 from .abstract import PAEType, PAENumberType, PAEDecodeError
@@ -11,6 +17,9 @@ __all__ = [
 
 
 class PAEBytes(PAEType[bytes]):
+    """
+    Represents a raw byte string, encoded as the identity.
+    """
 
     def write(self, value: bytes, stream: IO) -> int:
         return stream.write(value)
@@ -20,6 +29,9 @@ class PAEBytes(PAEType[bytes]):
 
 
 class PAEString(PAEType[str]):
+    """
+    Represents a text string, encoded in UTF-8.
+    """
 
     def write(self, value: str, stream: IO) -> int:
         return stream.write(value.encode('utf8'))
@@ -31,11 +43,20 @@ class PAEString(PAEType[str]):
 S = TypeVar('S')
 
 DEFAULT_HMG_LIST_SETTINGS = PAEListSettings(prefix_if_constant=False)
+"""
+Default list settings for homogeneous lists.
+"""
 
 
 class PAEHomogeneousList(PAEType[List[S]]):
     """
     Homogeneous list of length-prefixed items.
+
+    :param child_type:
+        The type of the list's elements.
+
+    :param settings:
+        Encoding settings for the list.
     """
 
     def __init__(self, child_type: PAEType[S],
@@ -67,9 +88,22 @@ class PAEHomogeneousList(PAEType[List[S]]):
 
 
 DEFAULT_HTRG_LIST_SETTINGS = PAEListSettings(prefix_if_constant=True)
+"""
+Default list settings for heterogeneous lists.
+"""
 
 
 class PAEHeterogeneousList(PAEType[list]):
+    """
+    Heterogeneous, fixed-length list of length-prefixed items, or a tuple.
+
+    :param component_types:
+        The list of types that appear as the list's components, in order.
+
+    :param settings:
+        Encoding settings for the list.
+    """
+
     def __init__(self, component_types: List[PAEType],
                  settings: PAEListSettings = DEFAULT_HTRG_LIST_SETTINGS):
         self.component_types = component_types
