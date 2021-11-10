@@ -1,8 +1,8 @@
 [tool.poetry]
 name = "python-pae"
 version = "0.1.0"
-description = ""
-authors = ["Matthias Valvekens <matthias@mvalvekens.be>"]
+description = "Pre-authentication encoding (PAE) implementation in Python"
+authors = ["Matthias Valvekens <dev@mvalvekens.be>"]
 
 [tool.poetry.dependencies]
 python = "^3.7"
@@ -10,6 +10,8 @@ python = "^3.7"
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
 coverage = {extras = ["toml"], version = "^6.1.1"}
+Sphinx = "^4.3.0"
+sphinx-rtd-theme = "^1.0.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
