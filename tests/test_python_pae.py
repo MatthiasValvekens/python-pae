@@ -191,6 +191,7 @@ def test_encode_wrong_output_length_reported():
     class WeirdType(PAEType[int]):
         # wrong length
         constant_length = 1
+
         def write(self, value: int, stream: IO) -> int:
             return stream.write(struct.pack('<H', value))
 
@@ -202,3 +203,50 @@ def test_encode_wrong_output_length_reported():
             10, WeirdType(), BytesIO(),
             length_type=PAENumberType.USHORT
         )
+
+
+NESTED_HETEROGENEOUS_TESTS = [
+    ([1, [b'abc', b'xyz'], b'1234'],
+     [PAENumberType.UINT,
+      PAEHomogeneousList(PAEBytes(), size_type=PAENumberType.USHORT),
+      PAEBytes()],
+     b'\x03\x00\x01\x00\x00\x00'
+     b'\x0c\x00\x02\x00\x03\x00abc\x03\x00xyz'
+     b'\x04\x001234'),
+    ([1, [b'', b'xyz'], [], b'1234'],
+     [PAENumberType.UINT,
+      PAEHomogeneousList(PAEBytes(), size_type=PAENumberType.USHORT),
+      PAEHomogeneousList(PAEBytes(), size_type=PAENumberType.USHORT),
+      PAEBytes()],
+     b'\x04\x00\x01\x00\x00\x00'
+     b'\x09\x00\x02\x00\x00\x00\x03\x00xyz'
+     b'\x02\x00\x00\x00'
+     b'\x04\x001234'),
+    ([1, [b'', 10, b'xyz'], [1, 2, 3], b'1234'],
+     [PAENumberType.UINT,
+      PAEHeterogeneousList(
+          [PAEBytes(), PAENumberType.USHORT, PAEBytes()],
+          size_type=PAENumberType.USHORT
+      ),
+      PAEHomogeneousList(PAENumberType.UCHAR, size_type=PAENumberType.USHORT),
+      PAEBytes()],
+     b'\x04\x00\x01\x00\x00\x00'
+     b'\x0b\x00\x03\x00\x00\x00\x0a\x00\x03\x00xyz'
+     b'\x05\x00\x03\x00\x01\x02\x03'
+     b'\x04\x001234'),
+]
+
+
+@pytest.mark.parametrize('expected_out,types,inp', NESTED_HETEROGENEOUS_TESTS)
+def test_decode_nested(inp, types, expected_out):
+    lst_type = PAEHeterogeneousList(
+        component_types=types, size_type=PAENumberType.USHORT,
+    )
+    decoded = unmarshal(inp, lst_type)
+    assert decoded == expected_out
+
+
+@pytest.mark.parametrize('inp,types,expected_out', NESTED_HETEROGENEOUS_TESTS)
+def test_encode_nested(inp, types, expected_out):
+    encoded = pae_encode_multiple(zip(inp, types), size_t=PAENumberType.USHORT)
+    assert encoded == expected_out
