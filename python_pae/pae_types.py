@@ -4,7 +4,8 @@ from .abstract import PAEType, PAENumberType, PAEDecodeError
 from .encode import write_prefixed, read_pae_coro, PAEListSettings
 
 __all__ = [
-    'PAEBytes', 'PAENumberType', 'PAEHomogeneousList', 'PAEHeterogeneousList',
+    'PAEBytes', 'PAEString',
+    'PAENumberType', 'PAEHomogeneousList', 'PAEHeterogeneousList',
     'DEFAULT_HMG_LIST_SETTINGS', 'DEFAULT_HTRG_LIST_SETTINGS'
 ]
 
@@ -16,6 +17,15 @@ class PAEBytes(PAEType[bytes]):
 
     def read(self, stream: IO, length: int) -> bytes:
         return stream.read(length)
+
+
+class PAEString(PAEType[str]):
+
+    def write(self, value: str, stream: IO) -> int:
+        return stream.write(value.encode('utf8'))
+
+    def read(self, stream: IO, length: int) -> str:
+        return stream.read(length).decode('utf8')
 
 
 S = TypeVar('S')

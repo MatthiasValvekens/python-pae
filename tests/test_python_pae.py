@@ -11,8 +11,7 @@ from python_pae import (
 from python_pae.abstract import PAEType, PAENumberType
 from python_pae.encode import write_prefixed, PAEListSettings
 from python_pae.pae_types import PAEBytes, PAEHomogeneousList, \
-    PAEHeterogeneousList
-
+    PAEHeterogeneousList, PAEString
 
 # Default list encoding settings for our tests
 NO_CONST_PREFIX = PAEListSettings(
@@ -263,6 +262,13 @@ NESTED_HETEROGENEOUS_TESTS = [
      b'\x03\x00\x04\x00\x01\x00\x00\x00'
      b'\x0c\x00\x02\x00\x03\x00abc\x03\x00xyz'
      b'\x04\x001234'),
+    ([1, [b'abc', b'xyz'], 'テスト'],
+     [PAENumberType.UINT,
+      PAEHomogeneousList(PAEBytes(), settings=WITH_CONST_PREFIX),
+      PAEString()],
+     b'\x03\x00\x04\x00\x01\x00\x00\x00'
+     b'\x0c\x00\x02\x00\x03\x00abc\x03\x00xyz'
+     b'\x09\x00\xe3\x83\x86\xe3\x82\xb9\xe3\x83\x88'),
     ([1, [b'', b'xyz'], [], b'1234'],
      [PAENumberType.UINT,
       PAEHomogeneousList(PAEBytes(), settings=WITH_CONST_PREFIX),
@@ -324,3 +330,8 @@ def test_decode_nested(inp, types, expected_out):
 def test_encode_nested(inp, types, expected_out):
     encoded = pae_encode_multiple(zip(inp, types), size_t=PAENumberType.USHORT)
     assert encoded == expected_out
+
+
+def test_illegal_utf_sequence():
+    with pytest.raises(PAEDecodeError, match="Failed"):
+        unmarshal(b'\xee\xaa', PAEString())
