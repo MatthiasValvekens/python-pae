@@ -1,3 +1,9 @@
+.. image:: https://github.com/MatthiasValvekens/python-pae/workflows/pytest/badge.svg
+   :target: https://github.com/MatthiasValvekens/python-pae
+
+.. image:: https://codecov.io/gh/MatthiasValvekens/python-pae/branch/master/graph/badge.svg?token=XPRS49L0X6
+   :target: https://codecov.io/gh/MatthiasValvekens/python-pae
+
 Pre-authentication encoding in Python
 =====================================
 
