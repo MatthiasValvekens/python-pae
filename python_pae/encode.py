@@ -11,7 +11,10 @@ from dataclasses import dataclass
 from io import BytesIO
 from typing import IO, TypeVar, Optional
 
-from .abstract import PAEType, PAENumberType, PAEDecodeError
+from .abstract import (
+    PAEType, PAENumberType, PAEDecodeError,
+    PAE_ULLONG
+)
 
 __all__ = [
     'marshal', 'unmarshal',
@@ -26,7 +29,7 @@ class PAEListSettings:
     List encoding settings. The defaults represent the PASETO version of PAE.
     """
 
-    size_type: PAENumberType = PAENumberType.ULLONG
+    size_type: PAENumberType = PAE_ULLONG
     """
     Numeric type to use for the list size.
 

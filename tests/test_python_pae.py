@@ -14,17 +14,17 @@ from python_pae import (
     pae_encode, unmarshal, marshal, pae_encode_multiple,
     PAEDecodeError
 )
-from python_pae.abstract import PAEType, PAENumberType
+from python_pae.abstract import PAEType,  PAE_USHORT, PAE_ULLONG, PAE_UCHAR, PAE_UINT
 from python_pae.encode import write_prefixed, PAEListSettings
 from python_pae.pae_types import PAEBytes, PAEHomogeneousList, \
     PAEHeterogeneousList, PAEString
 
 # Default list encoding settings for our tests
 NO_CONST_PREFIX = PAEListSettings(
-    size_type=PAENumberType.USHORT, prefix_if_constant=False
+    size_type=PAE_USHORT, prefix_if_constant=False
 )
 WITH_CONST_PREFIX = PAEListSettings(
-    size_type=PAENumberType.USHORT, prefix_if_constant=True
+    size_type=PAE_USHORT, prefix_if_constant=True
 )
 
 
@@ -35,7 +35,7 @@ WITH_CONST_PREFIX = PAEListSettings(
      b'\x04\x00\x03\x00123\x02\x0045\x02\x0067\x02\x0089'),
 ])
 def test_encode_bytes(inp, expected_out):
-    encoded = pae_encode(inp, size_t=PAENumberType.USHORT)
+    encoded = pae_encode(inp, size_t=PAE_USHORT)
     assert encoded == expected_out
 
 
@@ -48,7 +48,7 @@ def test_encode_bytes(inp, expected_out):
      b'\x02\x00\x00\x0045\x02\x00\x00\x0067\x02\x00\x00\x0089'),
 ])
 def test_encode_bytes_uint(inp, expected_out):
-    encoded = pae_encode(inp, size_t=PAENumberType.UINT)
+    encoded = pae_encode(inp, size_t=PAE_UINT)
     assert encoded == expected_out
 
 
@@ -64,8 +64,8 @@ def test_encode_bytes_mix(inp, expected_out):
     lst_type = PAEHomogeneousList(
         PAEBytes(),
         PAEListSettings(
-            size_type=PAENumberType.UINT,
-            length_type=PAENumberType.USHORT,
+            size_type=PAE_UINT,
+            length_type=PAE_USHORT,
         )
     )
     encoded = marshal(inp, lst_type)
@@ -95,8 +95,8 @@ def test_decode_bytes_mix(inp, expected_out):
     lst_type = PAEHomogeneousList(
         PAEBytes(),
         PAEListSettings(
-            size_type=PAENumberType.UINT,
-            length_type=PAENumberType.USHORT
+            size_type=PAE_UINT,
+            length_type=PAE_USHORT
         )
     )
     assert unmarshal(inp, lst_type) == expected_out
@@ -105,12 +105,12 @@ def test_decode_bytes_mix(inp, expected_out):
 @pytest.mark.parametrize('inp,expected_out', [
     ([(b'12', PAEBytes()), (b'345', PAEBytes())],
      b'\x02\x00\x02\x0012\x03\x00345'),
-    ([(1, PAENumberType.UINT), (b'1234', PAEBytes())],
+    ([(1, PAE_UINT), (b'1234', PAEBytes())],
      b'\x02\x00\x04\x00\x01\x00\x00\x00\x04\x001234'),
     ([], b'\x00\x00'),
 ])
 def test_encode_heterogeneous(inp, expected_out):
-    encoded = pae_encode_multiple(inp, size_t=PAENumberType.USHORT)
+    encoded = pae_encode_multiple(inp, size_t=PAE_USHORT)
     assert encoded == expected_out
 
 
@@ -119,10 +119,10 @@ TEST_ENCODE_HETEROGENEOUS_NO_PREFIX = [
      [PAEBytes(), PAEBytes()],
      b'\x02\x00\x02\x0012\x03\x00345'),
     ([1, b'1234'],
-     [PAENumberType.UINT, PAEBytes()],
+     [PAE_UINT, PAEBytes()],
      b'\x02\x00\x01\x00\x00\x00\x04\x001234'),
     ([1, b'', b'1234'],
-     [PAENumberType.UINT, PAEBytes(), PAEBytes()],
+     [PAE_UINT, PAEBytes(), PAEBytes()],
      b'\x03\x00\x01\x00\x00\x00\x00\x00\x04\x001234'),
 ]
 
@@ -142,10 +142,10 @@ def test_encode_heterogeneous_const_no_prefix(inp, types, expected_out):
      [PAEBytes(), PAEBytes()],
      b'\x02\x00\x02\x0012\x03\x00345'),
     ([1, b'1234'],
-     [PAENumberType.UINT, PAEBytes()],
+     [PAE_UINT, PAEBytes()],
      b'\x02\x00\x04\x00\x01\x00\x00\x00\x04\x001234'),
     ([1, b'', b'1234'],
-     [PAENumberType.UINT, PAEBytes(), PAEBytes()],
+     [PAE_UINT, PAEBytes(), PAEBytes()],
      b'\x03\x00\x04\x00\x01\x00\x00\x00\x00\x00\x04\x001234'),
 ])
 def test_decode_heterogeneous(inp, types, expected_out):
@@ -169,7 +169,7 @@ def test_decode_heterogeneous_const_no_prefix(inp, types, expected_out):
 @pytest.mark.parametrize('inp,pae_type', [
     (b'\x02\x00\x01\x00\x00\x00\x05',
      PAEHeterogeneousList(
-         component_types=[PAENumberType.UINT, PAEBytes()],
+         component_types=[PAE_UINT, PAEBytes()],
          settings=NO_CONST_PREFIX)),
     (b'\x01\x00\x00',
      PAEHomogeneousList(PAEBytes(), settings=NO_CONST_PREFIX))
@@ -182,7 +182,7 @@ def test_decode_length_prefix_error(inp, pae_type):
 @pytest.mark.parametrize('inp,pae_type', [
     (b'\x02\x00\x01\x00\x00\x00\x05\x00123',
      PAEHeterogeneousList(
-         component_types=[PAENumberType.UINT, PAEBytes()],
+         component_types=[PAE_UINT, PAEBytes()],
          settings=WITH_CONST_PREFIX)),
     (b'\x01\x00\x01\x00',
      PAEHomogeneousList(PAEBytes(), settings=NO_CONST_PREFIX))
@@ -195,7 +195,7 @@ def test_decode_payload_too_short(inp, pae_type):
 @pytest.mark.parametrize('inp,pae_type', [
     (b'\x02\x00\x01\x00\x00\x00\x05\x00123456',
      PAEHeterogeneousList(
-         component_types=[PAENumberType.UINT, PAEBytes()],
+         component_types=[PAE_UINT, PAEBytes()],
          settings=NO_CONST_PREFIX)),
     (b'\x01\x00\x00\x001',
      PAEHomogeneousList(PAEBytes(), settings=NO_CONST_PREFIX))
@@ -208,11 +208,11 @@ def test_decode_payload_too_long(inp, pae_type):
 @pytest.mark.parametrize('inp,pae_type', [
     (b'\x01',
      PAEHeterogeneousList(
-         component_types=[PAENumberType.UINT, PAEBytes()],
+         component_types=[PAE_UINT, PAEBytes()],
          settings=NO_CONST_PREFIX)),
     (b'\x01',
      PAEHomogeneousList(PAEBytes(), settings=NO_CONST_PREFIX)),
-    (b'\x01\x001', PAENumberType.ULLONG),
+    (b'\x01\x001', PAE_ULLONG),
 ])
 def test_payload_invalid(inp, pae_type):
     with pytest.raises(PAEDecodeError, match='Failed to read value'):
@@ -222,11 +222,11 @@ def test_payload_invalid(inp, pae_type):
 @pytest.mark.parametrize('inp,pae_type', [
     (b'\x01\x00\x01\x00\x00\x00',
      PAEHeterogeneousList(
-         component_types=[PAENumberType.UINT, PAEBytes()],
+         component_types=[PAE_UINT, PAEBytes()],
          settings=NO_CONST_PREFIX)),
     (b'\x03\x00\x01\x00\x00\x00\x00\x00\x00\x00',
      PAEHeterogeneousList(
-         component_types=[PAENumberType.UINT, PAEBytes()],
+         component_types=[PAE_UINT, PAEBytes()],
          settings=NO_CONST_PREFIX)),
 ])
 def test_decode_wrong_component_count(inp, pae_type):
@@ -237,7 +237,7 @@ def test_decode_wrong_component_count(inp, pae_type):
 def test_encode_wrong_component_count():
     with pytest.raises(ValueError, match='Wrong number of components'):
         PAEHeterogeneousList(
-            component_types=[PAENumberType.UINT, PAEBytes()],
+            component_types=[PAE_UINT, PAEBytes()],
             settings=NO_CONST_PREFIX).write([1, b'2', 3], BytesIO())
 
 
@@ -255,28 +255,28 @@ def test_encode_wrong_output_length_reported():
     with pytest.raises(IOError, match='but wrote'):
         write_prefixed(
             10, WeirdType(), BytesIO(),
-            length_type=PAENumberType.USHORT,
+            length_type=PAE_USHORT,
             prefix_if_constant=False
         )
 
 
 NESTED_HETEROGENEOUS_TESTS = [
     ([1, [b'abc', b'xyz'], b'1234'],
-     [PAENumberType.UINT,
+     [PAE_UINT,
       PAEHomogeneousList(PAEBytes(), settings=WITH_CONST_PREFIX),
       PAEBytes()],
      b'\x03\x00\x04\x00\x01\x00\x00\x00'
      b'\x0c\x00\x02\x00\x03\x00abc\x03\x00xyz'
      b'\x04\x001234'),
     ([1, [b'abc', b'xyz'], 'テスト'],
-     [PAENumberType.UINT,
+     [PAE_UINT,
       PAEHomogeneousList(PAEBytes(), settings=WITH_CONST_PREFIX),
       PAEString()],
      b'\x03\x00\x04\x00\x01\x00\x00\x00'
      b'\x0c\x00\x02\x00\x03\x00abc\x03\x00xyz'
      b'\x09\x00\xe3\x83\x86\xe3\x82\xb9\xe3\x83\x88'),
     ([1, [b'', b'xyz'], [], b'1234'],
-     [PAENumberType.UINT,
+     [PAE_UINT,
       PAEHomogeneousList(PAEBytes(), settings=WITH_CONST_PREFIX),
       PAEHomogeneousList(PAEBytes(), settings=WITH_CONST_PREFIX),
       PAEBytes()],
@@ -285,36 +285,36 @@ NESTED_HETEROGENEOUS_TESTS = [
      b'\x02\x00\x00\x00'
      b'\x04\x001234'),
     ([1, [b'', 10, b'xyz'], [1, 2, 3], b'1234'],
-     [PAENumberType.UINT,
+     [PAE_UINT,
       PAEHeterogeneousList(
-          [PAEBytes(), PAENumberType.USHORT, PAEBytes()],
+          [PAEBytes(), PAE_USHORT, PAEBytes()],
           settings=WITH_CONST_PREFIX
       ),
-      PAEHomogeneousList(PAENumberType.UCHAR, settings=WITH_CONST_PREFIX),
+      PAEHomogeneousList(PAE_UCHAR, settings=WITH_CONST_PREFIX),
       PAEBytes()],
      b'\x04\x00\x04\x00\x01\x00\x00\x00'
      b'\x0d\x00\x03\x00\x00\x00\x02\x00\x0a\x00\x03\x00xyz'
      b'\x0b\x00\x03\x00\x01\x00\x01\x01\x00\x02\x01\x00\x03'
      b'\x04\x001234'),
     ([1, [b'', 10, b'xyz'], [1, 2, 3], b'1234'],
-     [PAENumberType.UINT,
+     [PAE_UINT,
       PAEHeterogeneousList(
-          [PAEBytes(), PAENumberType.USHORT, PAEBytes()],
+          [PAEBytes(), PAE_USHORT, PAEBytes()],
           settings=WITH_CONST_PREFIX
       ),
-      PAEHomogeneousList(PAENumberType.UCHAR, settings=NO_CONST_PREFIX),
+      PAEHomogeneousList(PAE_UCHAR, settings=NO_CONST_PREFIX),
       PAEBytes()],
      b'\x04\x00\x04\x00\x01\x00\x00\x00'
      b'\x0d\x00\x03\x00\x00\x00\x02\x00\x0a\x00\x03\x00xyz'
      b'\x05\x00\x03\x00\x01\x02\x03'
      b'\x04\x001234'),
     ([1, [b'', 10, b'xyz'], [1, 2, 3], b'1234'],
-     [PAENumberType.UINT,
+     [PAE_UINT,
       PAEHeterogeneousList(
-          [PAEBytes(), PAENumberType.USHORT, PAEBytes()],
+          [PAEBytes(), PAE_USHORT, PAEBytes()],
           settings=NO_CONST_PREFIX
       ),
-      PAEHomogeneousList(PAENumberType.UCHAR, settings=NO_CONST_PREFIX),
+      PAEHomogeneousList(PAE_UCHAR, settings=NO_CONST_PREFIX),
       PAEBytes()],
      b'\x04\x00\x04\x00\x01\x00\x00\x00'
      b'\x0b\x00\x03\x00\x00\x00\x0a\x00\x03\x00xyz'
@@ -334,7 +334,7 @@ def test_decode_nested(inp, types, expected_out):
 
 @pytest.mark.parametrize('inp,types,expected_out', NESTED_HETEROGENEOUS_TESTS)
 def test_encode_nested(inp, types, expected_out):
-    encoded = pae_encode_multiple(zip(inp, types), size_t=PAENumberType.USHORT)
+    encoded = pae_encode_multiple(zip(inp, types), size_t=PAE_USHORT)
     assert encoded == expected_out
 
 

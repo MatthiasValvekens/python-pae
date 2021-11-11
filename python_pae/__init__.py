@@ -11,7 +11,7 @@ from typing import List
 
 from .pae_types import PAEBytes, PAEHomogeneousList, PAEHeterogeneousList
 from .encode import marshal, unmarshal, PAEListSettings
-from .abstract import PAEDecodeError, PAENumberType
+from .abstract import PAEDecodeError, PAENumberType, PAE_ULLONG
 
 __all__ = [
     'pae_encode', 'pae_encode_multiple',
@@ -20,8 +20,7 @@ __all__ = [
 ]
 
 
-def pae_encode(lst: List[bytes],
-               size_t: PAENumberType = PAENumberType.ULLONG) -> bytes:
+def pae_encode(lst: List[bytes], size_t: PAENumberType = PAE_ULLONG) -> bytes:
     """
     Encode a list of byte strings in PAE.
 
@@ -44,7 +43,7 @@ def pae_encode(lst: List[bytes],
 
 
 def pae_encode_multiple(value_type_pairs,
-                        size_t: PAENumberType = PAENumberType.ULLONG) -> bytes:
+                        size_t: PAENumberType = PAE_ULLONG) -> bytes:
     """
     Encode a list of multiple typed values in PAE.
 
