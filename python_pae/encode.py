@@ -226,7 +226,10 @@ def read_pae_coro(stream: IO, settings: PAEListSettings, expected_length=None):
             next_pae_type, stream, length_t,
             prefix_if_constant=settings.prefix_if_constant
         )
-        part_len: int = next(part_coro)
+        try:
+            part_len: int = next(part_coro)
+        except StopIteration as e:  # pragma: nocover
+            raise RuntimeError("Coroutine protocol violation") from e
         bytes_read += part_len
         if expected_length is not None:
             if bytes_read > expected_length:
@@ -240,4 +243,7 @@ def read_pae_coro(stream: IO, settings: PAEListSettings, expected_length=None):
                     f"Expected a payload of length {expected_length},"
                     f"but read {bytes_read} bytes; trailing data."
                 )
-        next_pae_type = yield next(part_coro)
+        try:
+            next_pae_type = yield next(part_coro)
+        except StopIteration as e:  # pragma: nocover
+            raise RuntimeError("Coroutine protocol violation") from e
