@@ -3,6 +3,15 @@ name = "python-pae"
 version = "0.1.0"
 description = "Pre-authentication encoding (PAE) implementation in Python"
 authors = ["Matthias Valvekens <dev@mvalvekens.be>"]
+license = 'MIT'
+classifiers = [
+    'Development Status :: 3 - Alpha',
+
+    'Intended Audience :: Developers',
+
+    'Topic :: Security :: Cryptography',
+    'Topic :: Software Development :: Libraries :: Python Modules',
+]
 
 [tool.poetry.dependencies]
 python = "^3.7"
