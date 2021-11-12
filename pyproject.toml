@@ -4,6 +4,10 @@ version = "0.1.0"
 description = "Pre-authentication encoding (PAE) implementation in Python"
 authors = ["Matthias Valvekens <dev@mvalvekens.be>"]
 license = 'MIT'
+homepage = "https://github.com/MatthiasValvekens/python-pae"
+documentation = "https://python-pae.readthedocs.io/"
+repository = "https://github.com/MatthiasValvekens/python-pae"
+readme = "README.rst"
 classifiers = [
     'Development Status :: 3 - Alpha',
 

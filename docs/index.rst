@@ -32,3 +32,11 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
+
+
+Links
+=====
+
+ - `Homepage <https://github.com/MatthiasValvekens/python-pae>`_
+ - `Documentation <https://python-pae.readthedocs.io/en/latest/index.html>`_
+ - `PyPI <https://pypi.org/project/python-pae/>`_
