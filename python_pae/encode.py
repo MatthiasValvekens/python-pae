@@ -11,10 +11,9 @@ from dataclasses import dataclass
 from io import BytesIO
 from typing import IO, TypeVar, Optional
 
-from .abstract import (
-    PAEType, PAENumberType, PAEDecodeError,
-    PAE_ULLONG
-)
+from .abstract import PAEType, PAEDecodeError
+
+from .number import PAENumberType, PAE_ULLONG
 
 __all__ = [
     'marshal', 'unmarshal',

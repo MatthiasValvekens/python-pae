@@ -11,6 +11,7 @@ Submodules
 
    python_pae.abstract
    python_pae.encode
+   python_pae.number
    python_pae.pae_types
 
 

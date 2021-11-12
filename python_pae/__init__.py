@@ -11,7 +11,8 @@ from typing import List
 
 from .pae_types import PAEBytes, PAEHomogeneousList, PAEHeterogeneousList
 from .encode import marshal, unmarshal, PAEListSettings
-from .abstract import PAEDecodeError, PAENumberType, PAE_ULLONG
+from .abstract import PAEDecodeError
+from .number import PAENumberType, PAE_ULLONG
 
 __all__ = [
     'pae_encode', 'pae_encode_multiple',

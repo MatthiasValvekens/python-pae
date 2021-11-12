@@ -14,7 +14,9 @@ from python_pae import (
     pae_encode, unmarshal, marshal, pae_encode_multiple,
     PAEDecodeError
 )
-from python_pae.abstract import PAEType,  PAE_USHORT, PAE_ULLONG, PAE_UCHAR, PAE_UINT
+from python_pae.abstract import PAEType
+from python_pae.number import PAE_USHORT, PAE_ULLONG, PAE_UCHAR, PAE_UINT, \
+    PAENumberType
 from python_pae.encode import write_prefixed, PAEListSettings
 from python_pae.pae_types import PAEBytes, PAEHomogeneousList, \
     PAEHeterogeneousList, PAEString
@@ -63,10 +65,7 @@ def test_encode_bytes_uint(inp, expected_out):
 def test_encode_bytes_mix(inp, expected_out):
     lst_type = PAEHomogeneousList(
         PAEBytes(),
-        PAEListSettings(
-            size_type=PAE_UINT,
-            length_type=PAE_USHORT,
-        )
+        PAEListSettings(size_type=PAE_UINT, length_type=PAE_USHORT,)
     )
     encoded = marshal(inp, lst_type)
     assert encoded == expected_out
@@ -341,3 +340,14 @@ def test_encode_nested(inp, types, expected_out):
 def test_illegal_utf_sequence():
     with pytest.raises(PAEDecodeError, match="Failed"):
         unmarshal(b'\xee\xaa', PAEString())
+
+
+def test_number_str_known():
+    assert str(PAE_UCHAR) == '<uint8 (UCHAR)>'
+    assert str(PAE_USHORT) == '<uint16 (USHORT)>'
+    assert str(PAE_UINT) == '<uint32 (UINT)>'
+    assert str(PAE_ULLONG) == '<uint64 (ULLONG)>'
+
+
+def test_number_str_generic():
+    assert str(PAENumberType(4)) == '<uint128>'

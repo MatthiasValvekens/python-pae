@@ -6,9 +6,9 @@ This module defines the serialisation logic for a number of basic types.
 
 from typing import List, TypeVar, IO
 
-from .abstract import (
-    PAEType, PAENumberType, PAEDecodeError,
-    PAE_UCHAR, PAE_USHORT, PAE_UINT, PAE_ULLONG
+from .abstract import PAEType, PAEDecodeError
+from .number import (
+    PAENumberType, PAE_UCHAR, PAE_USHORT, PAE_UINT, PAE_ULLONG
 )
 from .encode import write_prefixed, read_pae_coro, PAEListSettings
 
