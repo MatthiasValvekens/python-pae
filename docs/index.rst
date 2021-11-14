@@ -18,8 +18,20 @@ Pre-authentication encoding in Python
     :alt: Coverage status
 
 .. image:: https://readthedocs.org/projects/python-pae/badge/?version=latest
-   :target: https://python-pae.readthedocs.io/en/latest/?badge=latest
-   :alt: Documentation Status
+    :target: https://python-pae.readthedocs.io/en/latest/?badge=latest
+    :alt: Documentation status
+
+.. image:: https://img.shields.io/pypi/v/python-pae.svg
+    :target: https://pypi.org/project/python-pae/
+    :alt: PyPI status
+
+.. image:: https://img.shields.io/lgtm/grade/python/g/MatthiasValvekens/python-pae.svg
+    :target: https://lgtm.com/projects/g/MatthiasValvekens/python-pae/
+    :alt: LGTM language grade
+
+.. image:: https://img.shields.io/lgtm/alerts/g/MatthiasValvekens/python-pae.svg
+    :target: https://lgtm.com/projects/g/MatthiasValvekens/python-pae/
+    :alt: LGTM alert count
 
 
 This minimal library (``python-pae``) offers an implementation of (a variant of) PASETO's
